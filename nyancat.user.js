@@ -104,7 +104,7 @@ let getPendingWork = (work, rgbaOrder, rgbaCanvas) => {
 function connectSocket() {
     GM_xmlhttpRequest ( {
         method: "GET",
-        url: "https://raw.githubusercontent.com/Kinuseka/NyanCatrPlace/1531109c6c64187d05d2ff9f41d04fa31410f025/json/current_link.json",
+        url: "https://raw.githubusercontent.com/Kinuseka/NyanCatrPlace/main/json/current_link.json",
         onload: async function (response) {
             var myObj = JSON.parse(response.responseText);
             var map_link = myObj['url'];
