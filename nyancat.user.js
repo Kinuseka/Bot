@@ -1,21 +1,22 @@
 // ==UserScript==
-// @name         PlaceNL Bot
-// @namespace    https://github.com/PlaceNL/Bot
+// @name         Nyan BOT
+// @namespace    https://github.com/Kinuseka/NyanCatrPlace
 // @version      13
-// @description  De bot voor PlaceNL!
-// @author       NoahvdAa
+// @description  A bot made to maintain a small and humble nyan cat
+// @author       NoahvdAa modified by Kinuseka
 // @match        https://www.reddit.com/r/place/*
 // @match        https://new.reddit.com/r/place/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=reddit.com
-// @require	     https://cdn.jsdelivr.net/npm/toastify-js
+// @require      https://cdn.jsdelivr.net/npm/toastify-js
 // @resource     TOASTIFY_CSS https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css
-// @updateURL    https://github.com/PlaceNL/Bot/raw/master/placenlbot.user.js
-// @downloadURL  https://github.com/PlaceNL/Bot/raw/master/placenlbot.user.js
+// @updateURL    https://github.com/Kinuseka/Bot/raw/master/nyancat.user.js
+// @downloadURL  https://github.com/Kinuseka/Bot/raw/master/nyancat.user.js
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
-// Sorry voor de rommelige code, haast en clean gaatn iet altijd samen ;)
+// MODDED version of PlaceNL bot to work with nyan cat
 
 var socket;
 var order = undefined;
@@ -83,12 +84,12 @@ let getPendingWork = (work, rgbaOrder, rgbaCanvas) => {
     currentPlaceCanvas = document.body.appendChild(currentPlaceCanvas);
 
     Toastify({
-        text: 'Accesstoken ophalen...',
+        text: 'Retrieving access token...',
         duration: 10000
     }).showToast();
     accessToken = await getAccessToken();
     Toastify({
-        text: 'Accesstoken opgehaald!',
+        text: 'Accesstoken retrieved!',
         duration: 10000
     }).showToast();
 
@@ -101,57 +102,30 @@ let getPendingWork = (work, rgbaOrder, rgbaCanvas) => {
 })();
 
 function connectSocket() {
-    Toastify({
-        text: 'Verbinden met PlaceNL server...',
-        duration: 10000
-    }).showToast();
-
-    socket = new WebSocket('wss://placenl.noahvdaa.me/api/ws');
-
-    socket.onopen = function () {
-        Toastify({
-            text: 'Verbonden met PlaceNL server!',
-            duration: 10000
-        }).showToast();
-        socket.send(JSON.stringify({ type: 'getmap' }));
-    };
-
-    socket.onmessage = async function (message) {
-        var data;
-        try {
-            data = JSON.parse(message.data);
-        } catch (e) {
-            return;
+    GM_xmlhttpRequest ( {
+        method: "GET",
+        url: "https://raw.githubusercontent.com/Kinuseka/NyanCatrPlace/1531109c6c64187d05d2ff9f41d04fa31410f025/json/current_link.json",
+        onload: function (response) {
+            var myObj = JSON.parse(response.responseText);
+            var map_link = myObj['url'];
+            Toastify({
+                text: `Nyan Cat getting Map Data At: ${map_link}`,
+                duration: 10000
+            }).showToast();
+            currentOrderCtx = await getCanvasFromUrl(map_link, currentOrderCanvas);
+            order = getRealWork(currentOrderCtx.getImageData(0, 0, 2000, 1000).data);
+            Toastify({
+                text: `Map loaded, ${order.length} pixels in tota`,
+                duration: 10000
+            }).showToast();
         }
 
-        switch (data.type.toLowerCase()) {
-            case 'map':
-                Toastify({
-                    text: `Nieuwe map laden (reden: ${data.reason ? data.reason : 'verbonden met server'})...`,
-                    duration: 10000
-                }).showToast();
-                currentOrderCtx = await getCanvasFromUrl(`https://placenl.noahvdaa.me/maps/${data.data}`, currentOrderCanvas);
-                order = getRealWork(currentOrderCtx.getImageData(0, 0, 2000, 1000).data);
-                Toastify({
-                    text: `Nieuwe map geladen, ${order.length} pixels in totaal`,
-                    duration: 10000
-                }).showToast();
-                break;
-            default:
-                break;
+    } );
+    
+    
+            
         }
-    };
 
-    socket.onclose = function (e) {
-        Toastify({
-            text: `PlaceNL server heeft de verbinding verbroken: ${e.reason}`,
-            duration: 10000
-        }).showToast();
-        console.error('Socketfout: ', e.reason);
-        socket.close();
-        setTimeout(connectSocket, 1000);
-    };
-}
 
 async function attemptPlace() {
     if (order === undefined) {
@@ -163,9 +137,9 @@ async function attemptPlace() {
         ctx = await getCanvasFromUrl(await getCurrentImageUrl('0'), currentPlaceCanvas, 0, 0);
         ctx = await getCanvasFromUrl(await getCurrentImageUrl('1'), currentPlaceCanvas, 1000, 0)
     } catch (e) {
-        console.warn('Fout bij ophalen map: ', e);
+        console.warn('error retrieving map: ', e);
         Toastify({
-            text: 'Fout bij ophalen map. Opnieuw proberen in 10 sec...',
+            text: 'Error retrieving map. Retry in 10 sec ...',
             duration: 10000
         }).showToast();
         setTimeout(attemptPlace, 10000); // probeer opnieuw in 10sec.
@@ -178,7 +152,7 @@ async function attemptPlace() {
 
     if (work.length === 0) {
         Toastify({
-            text: `Alle pixels staan al op de goede plaats! Opnieuw proberen in 30 sec...`,
+            text: `Pixels already in place! retrying in 30 seconds`,
             duration: 30000
         }).showToast();
         setTimeout(attemptPlace, 30000); // probeer opnieuw in 30sec.
@@ -193,7 +167,7 @@ async function attemptPlace() {
     const hex = rgbaOrderToHex(i, rgbaOrder);
 
     Toastify({
-        text: `Proberen pixel te plaatsen op ${x}, ${y}... (${percentComplete}% compleet)`,
+        text: `Trying to place pixels on: ${x}, ${y}... (${percentComplete}% completed)`,
         duration: 10000
     }).showToast();
 
@@ -206,7 +180,7 @@ async function attemptPlace() {
             const nextPixelDate = new Date(nextPixel);
             const delay = nextPixelDate.getTime() - Date.now();
             Toastify({
-                text: `Pixel te snel geplaatst! Volgende pixel wordt geplaatst om ${nextPixelDate.toLocaleTimeString()}.`,
+                text: `Pixel placed too fast, next pixel will be placed on ${nextPixelDate.toLocaleTimeString()}.`,
                 duration: delay
             }).showToast();
             setTimeout(attemptPlace, delay);
@@ -215,15 +189,15 @@ async function attemptPlace() {
             const nextPixelDate = new Date(nextPixel);
             const delay = nextPixelDate.getTime() - Date.now();
             Toastify({
-                text: `Pixel geplaatst op ${x}, ${y}! Volgende pixel wordt geplaatst om ${nextPixelDate.toLocaleTimeString()}.`,
+                text: `Pixel placed on ${x}, ${y}! Next pixel placement is on: ${nextPixelDate.toLocaleTimeString()}.`,
                 duration: delay
             }).showToast();
             setTimeout(attemptPlace, delay);
         }
     } catch (e) {
-        console.warn('Fout bij response analyseren', e);
+        console.warn('Analyze error in response ', e);
         Toastify({
-            text: `Fout bij response analyseren: ${e}.`,
+            text: `Analyze error in response: ${e}.`,
             duration: 10000
         }).showToast();
         setTimeout(attemptPlace, 10000);
@@ -328,7 +302,7 @@ function getCanvasFromUrl(url, canvas, x = 0, y = 0) {
             };
             img.onerror = () => {
                 Toastify({
-                    text: 'Fout bij ophalen map. Opnieuw proberen in 3 sec...',
+                    text: 'Error retrieving map, retrying in 3 secondss',
                     duration: 3000
                 }).showToast();
                 setTimeout(() => loadImage(ctx), 3000);
