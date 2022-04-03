@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nyan BOT
 // @namespace    https://github.com/Kinuseka/Bot
-// @version      13
+// @version      13.1
 // @description  A bot made to maintain a small and humble nyan cat
 // @author       NoahvdAa modified by Kinuseka
 // @match        https://www.reddit.com/r/place/*
