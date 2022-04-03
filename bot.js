@@ -7,12 +7,13 @@
 // @match        https://www.reddit.com/r/place/*
 // @match        https://new.reddit.com/r/place/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=reddit.com
-// @require	     https://cdn.jsdelivr.net/npm/toastify-js
+// @require      https://cdn.jsdelivr.net/npm/toastify-js
 // @resource     TOASTIFY_CSS https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css
-// @updateURL    https://github.com/Kinuseka/NyanCatrPlace/raw/main/Bot/bot.js
-// @downloadURL  https://github.com/Kinuseka/NyanCatrPlace/raw/main/Bot/bot.js
+// @updateURL    https://github.com/Kinuseka/Bot/raw/master/bot.js
+// @downloadURL  https://github.com/Kinuseka/Bot/raw/master/bot.js
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
 // MODDED version of PlaceNL bot to work with nyan cat
