@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nyan BOT
 // @namespace    https://github.com/Kinuseka/Bot
-// @version      13.1
+// @version      13.2
 // @description  A bot made to maintain a small and humble nyan cat
 // @author       NoahvdAa modified by Kinuseka
 // @match        https://www.reddit.com/r/place/*
@@ -205,7 +205,7 @@ async function attemptPlace() {
 }
 
 function place(x, y, color) {
-    socket.send(JSON.stringify({ type: 'placepixel', x, y, color }));
+//     socket.send(JSON.stringify({ type: 'placepixel', x, y, color }));
     return fetch('https://gql-realtime-2.reddit.com/query', {
         method: 'POST',
         body: JSON.stringify({
